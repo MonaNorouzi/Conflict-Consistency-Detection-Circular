@@ -7,6 +7,7 @@ class DocType(str, Enum):
     INTERNAL = "داخلی"
 
 class ConflictType(str, Enum):
+    FULL_CONFLICT = "تعارض کامل"
     FULL_CONFLIC = "تعارض کامل"
     HIERARCHICAL_CONFLICT = "تعارض کامل (سلسله‌مراتبی)"
     INTER_DEPARTMENTAL = "تعارض کامل (بین واحدی، بدون اولویت مشخص)"
@@ -36,9 +37,9 @@ class Clause(BaseModel):
     clause_number: int
     content: str
 
-    #@property
-    #def full_id(self) -> str:
-    #    return f"{self.circular_id}: بند {self.clause_number}"
+    @property
+    def full_id(self) -> str:
+        return f"{self.circular_id}: بند {self.clause_number}"
 
 
 

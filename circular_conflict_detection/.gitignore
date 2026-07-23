@@ -1,0 +1,25 @@
+# Environments
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+
+# Virtual Environments
+py312_env/
+venv/
+env/
+
+# Databases
+test_chroma_data/
+chroma_data/
+
+# Test and tooling output
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Local Docker data
+*.log

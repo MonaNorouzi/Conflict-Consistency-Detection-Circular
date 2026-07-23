@@ -1,22 +1,28 @@
-version: "3.8"
-
 services:
   api:
     build: .
-    container_name: circular_api
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
-    restart: always
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
-  dashboard:
+  ui:
     build: .
-    container_name: circular_dashboard
-    command: streamlit run app/dashboard.py --server.port 8501 --server.address 0.0.0.0
+    command: streamlit run ui/app.py --server.address 0.0.0.0 --server.port 8501
     ports:
       - "8501:8501"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     environment:
-      - API_URL=http://api:8000/api/v1
-    restart: always
+      API_URL: http://api:8000/api/v1
+    env_file:
+      - .env
+    restart: unless-stopped

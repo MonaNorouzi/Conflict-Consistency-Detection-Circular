@@ -7,9 +7,12 @@ class PrecedenceEngine:
         clause_a: Clause,
         clause_b: Clause,
         conflict_type: ConflictType,
-        explanation: str,
+        explanation: str = "",
+        ai_explanation: str | None = None,
         simple_summary: str = ""
     ) -> ConflictAnalysisResult:
+        if ai_explanation is not None:
+            explanation = ai_explanation
         
         winning_clause = None
         requires_human_review = False
