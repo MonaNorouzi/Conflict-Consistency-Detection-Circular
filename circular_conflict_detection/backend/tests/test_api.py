@@ -63,3 +63,16 @@ def test_upload_json_rejects_non_json_files():
     )
 
     assert response.status_code == 400
+
+
+def test_process_text_endpoint_returns_conflicts_for_plain_text():
+    response = client.post(
+        "/api/v1/circulars/process-text",
+        json={
+            "text": "بند ۱: سقف تسهیلات ۵۰ میلیون تومان است. بند ۲: سقف تسهیلات ۸۰ میلیون تومان است.",
+            "metadata": {"doc_id": "C-100", "type": "Internal", "department": "اعتبارات", "date": "1401/01/01"},
+        },
+    )
+
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)

@@ -1,7 +1,7 @@
 import json
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from typing import List
-from backend.models.schemas import CircularJSONInput, ConflictAnalysisResult, PeriodicAuditResponse, Clause, ConflictType
+from backend.models.schemas import CircularJSONInput, ConflictAnalysisResult, PeriodicAuditResponse, Clause, ConflictType, ClauseInput, DocType
 from backend.services.precedence import PrecedenceEngine
 
 router = APIRouter()
@@ -63,6 +63,36 @@ async def upload_circular_json(file: UploadFile = File(...)):
         return results
     else:
         return process_single_circular(CircularJSONInput(**data))
+
+@router.post("/process-text", response_model=List[ConflictAnalysisResult])
+async def process_text(payload: dict):
+    """پردازش متن خام بخشنامه و تبدیل آن به یک ورودی استاندارد برای تحلیل تعارض"""
+    if not isinstance(payload, dict):
+        raise HTTPException(status_code=400, detail="Body must be a JSON object.")
+
+    text = payload.get("text", "")
+    metadata = payload.get("metadata", {}) or {}
+
+    if not isinstance(text, str) or not text.strip():
+        raise HTTPException(status_code=400, detail="Field 'text' is required and must be a non-empty string.")
+
+    doc_id = metadata.get("doc_id") or "TEXT-001"
+    doc_type = metadata.get("type") or "Internal"
+    department = metadata.get("department") or "نامشخص"
+    issue_date = metadata.get("date") or "1401/01/01"
+
+    doc_type_value = DocType.UPSTREAM if doc_type in {"Regulatory", "بالادستی/نظارتی"} else DocType.INTERNAL
+
+    data = CircularJSONInput(
+        circular_id=doc_id,
+        title="متن ورودی از UI",
+        doc_type=doc_type_value,
+        issuer=department,
+        issue_date=issue_date,
+        clauses=[ClauseInput(clause_number=1, content=text)]
+    )
+
+    return process_single_circular(data)
 
 @router.get("/periodic-audit", response_model=PeriodicAuditResponse)
 async def periodic_audit():
