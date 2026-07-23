@@ -1,0 +1,13 @@
+# Environments
+.env
+__pycache__/
+*.pyc
+
+# Virtual Environments
+py312_env/
+venv/
+env/
+
+# Databases
+test_chroma_data/
+chroma_data/
