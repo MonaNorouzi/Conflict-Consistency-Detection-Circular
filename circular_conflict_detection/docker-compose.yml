@@ -1,28 +1,22 @@
-version: "3.9"
+version: "3.8"
 
 services:
-  backend:
-    build:
-      context: ./backend
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
+  api:
+    build: .
+    container_name: circular_api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
-    environment:
-      - VECTOR_DB_URL=http://qdrant:6333
-    depends_on:
-      - qdrant
+    restart: always
 
-  frontend:
-    build:
-      context: ./ui
-    command: streamlit run app.py --server.port 8501 --server.address 0.0.0.0
+  dashboard:
+    build: .
+    container_name: circular_dashboard
+    command: streamlit run app/dashboard.py --server.port 8501 --server.address 0.0.0.0
     ports:
       - "8501:8501"
     depends_on:
-      - backend
-
-  qdrant:
-    image: qdrant/qdrant:latest
-    ports:
-      - "6333:6333"
-      - "6334:6334"
+      - api
+    environment:
+      - API_URL=http://api:8000/api/v1
+    restart: always
